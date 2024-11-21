@@ -1,0 +1,246 @@
+// LIS
+
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n = nums.size() ;
+        vector<int>dp(n + 1 , 1)  ;
+        for(int i = 1 ; i <= n ; i++){
+            for(int j = i + 1 ; j <= n ; j++){
+                if(nums[i - 1] < nums[j - 1] && dp[i] + 1 > dp[j]){
+                    dp[j] = dp[i] + 1 ;
+                }
+            }
+        }
+        return *max_element(dp.begin() , dp.end()) ;
+    }
+};
+
+
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n = nums.size() ;
+        vector<int>v ;
+        for(int i = 0 ; i < n ; i++){
+            auto it = lower_bound(v.begin() , v.end() , nums[i]) ;
+            if(it != v.end()){
+                int ind = it - v.begin() ;
+                v[ind] = nums[i] ;
+            }
+            else{
+                v.push_back(nums[i]) ;
+            }
+        }
+        return v.size() ;
+    }
+};
+
+
+
+//  Longest Divisible Subset
+
+
+class Solution {
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        int n = nums.size() ;
+        sort(nums.begin() , nums.end()) ;
+        vector<int>dp(n , 1) ;
+        vector<int>prev_element(n) ;
+        int len = 0 ;
+        for(int i = 0 ; i < n ; i++){
+            for(int j = 0 ; j < i ; j++){
+                if(nums[i]%nums[j] == 0 && dp[j] + 1 > dp[i]){
+                    dp[i] = dp[j] + 1 ;
+                    prev_element[i] = j ;
+                }
+            }
+            len = max(len , dp[i]) ;
+        }
+
+        vector<int>lds(len , 0) ;
+        int i = n - 1 , j = len  ;
+        while(j > 0){
+            if(dp[i] == j){
+                lds[j - 1] = nums[i] ;
+                i = prev_element[i] ;
+                j-- ;
+            }
+            else i-- ;
+        }
+
+        return lds ;
+    }
+};
+
+
+class Solution {
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        int n = nums.size() ;
+        sort(nums.begin() , nums.end()) ;
+        vector<int>dp(n , 1) ;
+        int len = 0 ;
+        for(int i = 0 ; i < n ; i++){
+            for(int j = 0 ; j < i ; j++){
+                if(nums[i]%nums[j] == 0 && dp[j] + 1 > dp[i]){
+                    dp[i] = dp[j] + 1 ;
+                }
+            }
+            len = max(len , dp[i]) ;
+        }
+
+        vector<int>lds(len , 0) ;
+        int i = n - 1 , j = len  ;
+        while(j > 0){
+            if(dp[i] == j){
+                if(j == len or lds[j]%nums[i] == 0){
+                    lds[j - 1] = nums[i] ;
+                    j-- ;
+                }
+            }
+            i-- ;
+        }
+
+        return lds ;
+    }
+};
+
+
+// Longest String Chain
+
+class Solution {
+public:
+    static bool cmp(const string &a, const string &b) {
+        return a.size() < b.size();
+    }
+
+    bool compare(string s1 , string s2){
+        if(s1.size() != s2.size() + 1)return false ;
+        int i = 0 , j = 0 ;
+        while(i < s1.size()){
+            if(s1[i] != s2[j]){
+                i++ ;
+            }
+            else{
+                i++ ;
+                j++ ;
+            }
+        }
+        return (i == s1.size() && j == s2.size()) ;
+    }
+
+    int longestStrChain(vector<string>& words) {
+        int n = words.size();
+        sort(words.begin(), words.end(), cmp);
+        vector<int>dp(n , 1) ;
+        int len = 0 ;
+        for(int i = 0 ; i < n ; i++){
+            for(int j = 0 ; j < i ; j++){
+                if(compare(words[i] , words[j]) && dp[j] + 1 > dp[i]){
+                    dp[i] = dp[j] + 1 ;
+                }
+            }
+            len = max(len , dp[i]) ;
+        }
+        return len;
+    }
+};
+
+
+class Solution {
+public:
+    static bool cmp(const string &a, const string &b) {
+        return a.size() < b.size();
+    }
+    int longestStrChain(vector<string>& words) {
+        int n = words.size();
+        sort(words.begin(), words.end(), cmp);
+        unordered_map<string , int>dp ;
+        int len = 0 ;
+        for(auto it : words){
+            dp[it] = 1 ;
+            for(int j = 0 ; j < it.size() ; j++){
+                string temp = it.substr(0 , j) + it.substr(j + 1) ;
+                if(dp[it] < dp[temp] + 1)
+                    dp[it] = dp[temp] + 1 ;
+            }
+            len = max(len , dp[it]) ;
+        }
+        return len;
+    }
+};
+
+
+
+
+//   Minimum Number of Removals to make Mountain Array
+
+
+class Solution {
+public:
+    int minimumMountainRemovals(vector<int>& nums) {
+        int n = nums.size() ;
+        vector<int>dp1(n , 1) , dp2(n , 1)  ;
+        for(int i = 0 ; i < n ; i++){
+            for(int j = 0 ; j < i ; j++){
+                if(nums[j] < nums[i] && dp1[j] + 1 > dp1[i]){
+                    dp1[i] = dp1[j] + 1 ;
+                }
+            }
+        }
+
+        int lbs = 0 ;
+
+        for(int i = n - 1 ; i >= 0 ; i--){
+            for(int j = n - 1 ; j > i ; j--){
+                if(nums[j] < nums[i] && dp2[j] + 1 > dp2[i]){
+                    dp2[i] = dp2[j] + 1 ;
+                }
+            }
+            // This condition prevent LIS and LDS 
+            if(dp1[i] > 1 && dp2[i] > 1)
+            lbs = max(lbs , dp1[i] + dp2[i] - 1) ;
+        }
+
+        return nums.size() - lbs ;
+    }
+};
+
+
+// Number of longest increasing subsequences
+
+
+class Solution {
+public:
+    int findNumberOfLIS(vector<int>& nums) {
+        int n = nums.size() ;
+        vector<int>dp(n , 1) , ways(n , 1);
+        int lis = 0 ;
+        for(int i = 0 ; i < n ; i++){
+            for(int j = 0 ; j < i ; j++){
+                if(nums[j] < nums[i] ){
+                    if(dp[j] + 1 > dp[i]){
+                       dp[i] = dp[j] + 1 ; 
+                       ways[i] = ways[j] ;
+                    }
+                    else if(dp[j] + 1 == dp[i]){
+                       ways[i] += ways[j] ;
+                    }
+                }
+            }
+            lis = max(lis , dp[i]) ; 
+        }
+
+        int total_ways_lis = 0 ;
+
+        for(int i = 0 ; i < n ; i++){
+            if(dp[i] == lis){
+                total_ways_lis += ways[i] ;
+            }
+        }
+        
+        return total_ways_lis ;
+    }
+};
