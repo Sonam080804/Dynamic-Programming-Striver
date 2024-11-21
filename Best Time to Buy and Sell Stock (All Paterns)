@@ -1,0 +1,292 @@
+// Best Time to Buy and Sell Stock 1
+
+
+Link -> https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int maxi = 0 , mini = prices[0] ;
+        for(int i = 1 ; i < prices.size() ; i++){
+            maxi = max(maxi , prices[i] - mini) ;
+            mini = min(mini , prices[i]) ;
+        }
+        return maxi ;
+    }
+};
+
+
+
+
+
+// Best Time to Buy and Sell Stock 2
+
+
+// Memorisation
+
+class Solution {
+public:
+    int f(int i , int j , vector<int>&p , vector<vector<int>>&dp){
+        if(dp[i][j] != -1)return dp[i][j] ;
+
+        if(i == 0){
+            if(j == 0){
+                return -1*p[0] ;
+            }
+            else return 0 ;
+        }
+       
+        if(j == 0){
+            // Buy
+            return dp[i][j] = max(f(i - 1 , j , p , dp) // Not Buy at ith day
+                       , f(i - 1 , 1 , p , dp) - p[i]) ; // Buy at ith day
+        }
+        else{
+           // Sell
+           return dp[i][j] = max(f(i - 1 , j , p , dp) // Not sell at ith day
+                      , f(i - 1 , 0 , p , dp) + p[i]) ; // Sell at ith day
+        }
+    }
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size() ;
+        vector<vector<int>>dp(n , vector<int>(2 , -1)) ;
+        return f(n - 1 , 1 , prices , dp) ;
+    }
+};
+
+// Tabulation
+
+class Solution {
+public:
+    int maxProfit(vector<int>& p) {
+        int n = p.size() ;
+        vector<vector<int>>dp(n , vector<int>(2 , 0)) ;
+        dp[0][0] = -1*p[0] ;
+        for(int i = 1 ; i < n ; i++){
+            dp[i][0] = max(dp[i - 1][0] // Not Buy at ith day
+                       , dp[i - 1][1] - p[i]) ; // Buy at ith day
+
+            dp[i][1] = max(dp[i - 1][1] // Not sell at ith day
+                      , dp[i - 1][0] + p[i]) ; // Sell at ith day
+        }
+        return dp[n - 1][1] ;
+    }
+};
+
+
+// Space optimised Tabulation 
+
+
+class Solution {
+public:
+    int maxProfit(vector<int>& p) {
+        int n = p.size() ;
+        vector<int>prev(2 , 0)  , cur(2 , 0);
+        prev[0] = -1*p[0] ;
+        for(int i = 1 ; i < n ; i++){
+            cur[0] = max(prev[0] // Not Buy at ith day
+                       , prev[1] - p[i]) ; // Buy at ith day
+
+            cur[1] = max(prev[1] // Not sell at ith day
+                      , prev[0] + p[i]) ; // Sell at ith day
+
+            prev = cur ;
+        }
+        return prev[1] ;
+    }
+};
+
+
+
+// Best Time to Buy and Sell Stock 3
+
+
+
+class Solution {
+public:
+    int f(int i , int j , int k , vector<int>&p , vector<vector<vector<int>>>&dp){
+        if(dp[i][j][k] != -1)return dp[i][j][k] ;
+
+        if(k == 0)return 0 ;
+
+        if(i == 0){
+            if(j == 0){
+                return -1*p[0] ;
+            }
+            else return 0 ;
+        }
+       
+        if(j == 0){
+            // Buy
+            return dp[i][j][k] = max(f(i - 1 , j , k , p , dp) // Not Buy at ith day
+                       , f(i - 1 , 1 , k - 1 , p , dp) - p[i]) ; // Buy at ith day
+        }
+        else{
+           // Sell
+           return dp[i][j][k] = max(f(i - 1 , j , k , p , dp) // Not sell at ith day
+                      , f(i - 1 , 0 , k , p , dp) + p[i]) ; // Sell at ith day
+        }
+    }
+    int maxProfit(vector<int>& p) {
+        int n = p.size() ;
+        vector<vector<vector<int>>>dp(n , vector<vector<int>>(2 , vector<int>(3 , -1))) ;
+        return f(n - 1 , 1 , 2 , p , dp) ;
+    }
+};
+
+
+
+class Solution {
+public:
+    int maxProfit(vector<int>& p) {
+        int n = p.size() ;
+        vector<vector<vector<int>>>dp(n , vector<vector<int>>(2 , vector<int>(3 , 0))) ;
+        for(int k = 1 ; k < 3 ; k++){
+            dp[0][0][k] = -1*p[0] ;
+        }
+        for(int i = 1 ; i < n ; i++){
+            for(int k = 1 ; k < 3 ; k++){
+                dp[i][0][k] = max(dp[i - 1][0][k] , dp[i - 1][1][k - 1] - p[i]) ;
+                dp[i][1][k] = max(dp[i - 1][1][k] , dp[i - 1][0][k] + p[i]) ;
+            }
+        }
+        return dp[n - 1][1][2] ;
+    }
+};
+
+
+
+class Solution {
+public:  
+    int maxProfit(vector<int>& p) {
+        int n = p.size() ;
+        vector<vector<int>>prev(2 , vector<int>(3 , 0)) , cur(2 , vector<int>(3 , 0)) ;
+        for(int k = 1 ; k < 3 ; k++){
+            prev[0][k] = -1*p[0] ;
+        }
+        for(int i = 1 ; i < n ; i++){
+            for(int k = 1 ; k < 3 ; k++){
+                cur[0][k] = max(prev[0][k] , prev[1][k - 1] - p[i]) ;
+                cur[1][k] = max(prev[1][k] , prev[0][k] + p[i]) ;
+            }
+            prev = cur ;
+        }
+        return prev[1][2] ;
+    }
+};
+
+
+
+// Best Time to Buy and Sell Stock 4
+
+
+
+class Solution {
+public:
+    int maxProfit(int K, vector<int>& p) {
+        int n = p.size() ;
+        vector<vector<int>>prev(2 , vector<int>(K + 1 , 0)) , cur(2 , vector<int>(K + 1 , 0)) ;
+        for(int k = 1 ; k < K + 1 ; k++){
+            prev[0][k] = -1*p[0] ;
+        }
+        for(int i = 1 ; i < n ; i++){
+            for(int k = 1 ; k < K + 1 ; k++){
+                cur[0][k] = max(prev[0][k] , prev[1][k - 1] - p[i]) ;
+                cur[1][k] = max(prev[1][k] , prev[0][k] + p[i]) ;
+            }
+            prev = cur ;
+        }
+        return prev[1][K] ;
+    }
+};
+
+
+
+// Best Time to Buy and Sell Stock with cool down
+
+class Solution {
+public:
+    int f(int i , int j , vector<int>&p , vector<vector<int>>&dp){
+        if(i == 0)return 0 ;
+
+        if(i == 1){
+            if(j == 0){
+                return -1*p[0] ;
+            }
+            else return 0 ;
+        }
+
+        if(dp[i][j] != -1)return dp[i][j] ;
+       
+        if(j == 0){
+            // Buy
+            return dp[i][j] = max(f(i - 1 , j , p , dp) // Not Buy at ith day
+                       , f(i - 2 , 1 , p , dp) - p[i - 1]) ; // Buy at ith day
+        }
+        else{
+           // Sell
+           return dp[i][j] = max(f(i - 1 , j , p , dp) // Not sell at ith day
+                      , f(i - 1 , 0 , p , dp) + p[i - 1]) ; // Sell at ith day
+        }
+    }
+    int maxProfit(vector<int>& p) {
+        int n = p.size()  ;
+        vector<vector<int>>dp(n + 1 , vector<int>(2 , -1)) ;
+        return f(n , 1 , p , dp) ;
+    }
+};
+
+
+class Solution {
+public:
+    int maxProfit(vector<int>& p) {
+        int n = p.size()  ;
+        vector<vector<int>>dp(n + 1 , vector<int>(2 , 0)) ;
+        dp[1][0] = -1*p[0] ;
+        for(int i = 2 ; i <= n ; i++){
+            dp[i][0] = max(dp[i - 1][0] , dp[i - 2][1] - p[i - 1]) ;
+            dp[i][1] = max(dp[i - 1][1] , dp[i - 1][0] + p[i - 1]) ;
+        }
+        return dp[n][1] ;
+    }
+};
+
+
+class Solution {
+public:
+    int maxProfit(vector<int>& p) {
+        int n = p.size()  ;
+        vector<int>prev1(2 , 0) , prev2(2 , 0) , cur(2 , 0) ;
+        prev1[0] = -1*p[0] ;
+        for(int i = 2 ; i <= n ; i++){
+            cur[0] = max(prev1[0] , prev2[1] - p[i - 1]) ;
+            cur[1] = max(prev1[1] , prev1[0] + p[i - 1]) ;
+            prev2 = prev1 ;
+            prev1 = cur ;
+        }
+        return prev1[1] ;
+    }
+};
+
+
+// Best Time to Buy and Sell Stock with Transaction fee
+
+class Solution {
+public:
+    int maxProfit(vector<int>& p, int fee) {
+        int n = p.size() ;
+        vector<int>prev(2 , 0)  , cur(2 , 0);
+        prev[0] = -1*p[0] ;
+        for(int i = 1 ; i < n ; i++){
+            cur[0] = max(prev[0] // Not Buy at ith day
+                       , prev[1] - p[i]) ; // Buy at ith day
+
+            cur[1] = max(prev[1] // Not sell at ith day
+                      , prev[0] + p[i] - fee) ; // Sell at ith day
+
+            prev = cur ;
+        }
+        return prev[1] ;
+    }
+};
+
